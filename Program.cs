@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 using TaskApi.Data;
 using TaskApi.Endpoints;
 
@@ -9,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<TaskDbContext>(options =>
     options.UseSqlite("Data Source=tasks.db"));
 
-// Add CORS for frontend (包括静态文件端口)
+// Add CORS for frontend
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -21,7 +20,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swaggerhubble
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -45,10 +43,10 @@ using (var scope = app.Services.CreateScope())
 
 // Configure the HTTP request pipeline
 // 配置静态文件服务，指向frontend文件夹
-app.UseStaticFiles(new StaticFileOptions
+app.UseStaticFiles(new Microsoft.AspNetCore.Builder.StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(app.Environment.ContentRootPath, "frontend")),
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "frontend")),
     RequestPath = ""
 });
 
@@ -61,7 +59,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Task Management API v1");
-        c.RoutePrefix = "api-docs"; // 改为 api-docs，让根路径给前端
+        c.RoutePrefix = "api-docs";
     });
 }
 
@@ -84,7 +82,7 @@ app.MapGet("/", () => Results.Redirect("/index.html"));
 
 Console.WriteLine("🚀 Task Management API is starting...");
 Console.WriteLine("📱 Frontend available at: http://localhost:5234");
-Console.WriteLine("�� Swagger UI available at: http://localhost:5234/api-docs");
+Console.WriteLine("📖 Swagger UI available at: http://localhost:5234/api-docs");
 Console.WriteLine("🔗 API base URL: http://localhost:5234/tasks");
 
 app.Run();
