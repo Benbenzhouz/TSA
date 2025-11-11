@@ -8,12 +8,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<TaskDbContext>(options =>
     options.UseSqlite("Data Source=tasks.db"));
 
-// Add CORS for frontend
+// Add CORS for frontend (包括静态文件端口)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://127.0.0.1:3000")
+        policy.WithOrigins("http://localhost:3000", "http://127.0.0.1:3000", 
+                          "http://localhost:5234", "http://127.0.0.1:5234")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -42,17 +43,22 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline
+// 添加静态文件支持
+app.UseStaticFiles();
+
+// CORS 必须在路由之前
+app.UseCors("AllowFrontend");
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Task Management API v1");
-        c.RoutePrefix = string.Empty; // Serve Swagger UI at root
+        c.RoutePrefix = "api-docs"; // 改为 api-docs，让根路径给前端
     });
 }
 
-app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 
 // Map task endpoints
@@ -67,8 +73,12 @@ app.MapGet("/health", () => Results.Ok(new {
 .WithName("HealthCheck")
 .WithSummary("Health check endpoint");
 
+// 根路径重定向到前端页面
+app.MapGet("/", () => Results.Redirect("/index.html"));
+
 Console.WriteLine("🚀 Task Management API is starting...");
-Console.WriteLine("📖 Swagger UI available at: http://localhost:5000");
-Console.WriteLine("🔗 API base URL: http://localhost:5000/tasks");
+Console.WriteLine("📱 Frontend available at: http://localhost:5234");
+Console.WriteLine("📖 Swagger UI available at: http://localhost:5234/api-docs");
+Console.WriteLine("🔗 API base URL: http://localhost:5234/tasks");
 
 app.Run();

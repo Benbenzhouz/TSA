@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f6fa;
+            color: #2f3542;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #57606f;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #2f3542;
+            border-bottom: 2px solid #f1f2f6;
+            padding-bottom: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 150px 120px;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #57606f;
+            font-size: 0.9em;
+        }
+
+        input, select, textarea {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 40px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover {
+            background: #ff5252;
+        }
+
+        .btn-edit {
+            background: #ffa726;
+            color: white;
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .btn-edit:hover {
+            background: #ff9800;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tasks-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .tasks-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .task-item {
+            border-bottom: 1px solid #f1f2f6;
+            padding: 20px;
+            transition: background-color 0.2s ease;
+        }
+
+        .task-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #2f3542;
+            margin-bottom: 5px;
+        }
+
+        .task-description {
+            color: #747d8c;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85em;
+            color: #a4b0be;
+        }
+
+        .task-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-not-started {
+            background-color: #f1f2f6;
+            color: #57606f;
+        }
+
+        .status-in-progress {
+            background-color: #ffeaa7;
+            color: #d63031;
+        }
+
+        .status-completed {
+            background-color: #00b894;
+            color: white;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a4b0be;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a4b0be;
+        }
+
+        .empty-state i {
+            font-size: 3em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        /* Edit Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .modal-title {
+            font-size: 1.3em;
+            color: #2f3542;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal-form .form-group {
+            margin-bottom: 15px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Task Management System</h1>
+            <p class="subtitle">Organize your tasks efficiently</p>
+        </header>
+
+        <!-- Statistics Section -->
+        <div class="stats-container" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-number" id="totalTasks">0</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="notStartedCount">0</div>
+                <div class="stat-label">Not Started</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="inProgressCount">0</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedCount">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completionPercentage">0%</div>
+                <div class="stat-label">Completion Rate</div>
+            </div>
+        </div>
+
+        <!-- Add Task Form -->
+        <div class="form-container">
+            <h2 class="form-title">➕ Add New Task</h2>
+            <form id="addTaskForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskTitle">Title *</label>
+                        <input type="text" id="taskTitle" name="title" required maxlength="120" 
+                               placeholder="Enter task title...">
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDescription">Description</label>
+                        <textarea id="taskDescription" name="description" 
+                                  placeholder="Enter task description..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskStatus">Status</label>
+                        <select id="taskStatus" name="status">
+                            <option value="NOT_STARTED">Not Started</option>
+                            <option value="IN_PROGRESS">In Progress</option>
+                            <option value="COMPLETED">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Add Task</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="filter-group">
+                <label for="statusFilter">Filter by Status:</label>
+                <select id="statusFilter">
+                    <option value="">All Tasks</option>
+                    <option value="NOT_STARTED">Not Started</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="COMPLETED">Completed</option>
+                </select>
+            </div>
+            <button onclick="loadTasks()" class="btn btn-primary">🔄 Refresh</button>
+        </div>
+
+        <!-- Tasks List -->
+        <div class="tasks-container">
+            <div class="tasks-header">📋 Tasks</div>
+            <div id="tasksContainer">
+                <div class="loading">Loading tasks...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">✏️ Edit Task</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="editTaskForm" class="modal-form">
+                <input type="hidden" id="editTaskId">
+                <div class="form-group">
+                    <label for="editTaskTitle">Title *</label>
+                    <input type="text" id="editTaskTitle" name="title" required maxlength="120">
+                </div>
+                <div class="form-group">
+                    <label for="editTaskDescription">Description</label>
+                    <textarea id="editTaskDescription" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editTaskStatus">Status</label>
+                    <select id="editTaskStatus" name="status">
+                        <option value="NOT_STARTED">Not Started</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="COMPLETED">Completed</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:5234';
+        
+        // Global variables
+        let allTasks = [];
+        let currentFilter = '';
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTasks();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Add task form
+            document.getElementById('addTaskForm').addEventListener('submit', handleAddTask);
+            
+            // Filter change
+            document.getElementById('statusFilter').addEventListener('change', function(e) {
+                currentFilter = e.target.value;
+                loadTasks();
+            });
+
+            // Edit modal
+            document.querySelector('.close').addEventListener('click', closeEditModal);
+            document.getElementById('editTaskForm').addEventListener('submit', handleEditTask);
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('editModal');
+                if (event.target === modal) {
+                    closeEditModal();
+                }
+            });
+        }
+
+        // Load tasks from API
+        async function loadTasks() {
+            try {
+                const url = currentFilter 
+                    ? `${API_BASE_URL}/tasks?status=${currentFilter}`
+                    : `${API_BASE_URL}/tasks`;
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                allTasks = await response.json();
+                displayTasks(allTasks);
+                updateStatistics(allTasks);
+                
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                alert('Failed to load tasks. Please check if the API server is running.');
+                document.getElementById('tasksContainer').innerHTML = 
+                    '<div class="empty-state">❌ Failed to load tasks</div>';
+            }
+        }
+
+        // Display tasks in the UI
+        function displayTasks(tasks) {
+            const container = document.getElementById('tasksContainer');
+            
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div>📝</div>
+                        <h3>No tasks found</h3>
+                        <p>Start by adding a new task above</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const tasksHTML = tasks.map(task => `
+                <div class="task-item">
+                    <div class="task-header">
+                        <div>
+                            <div class="task-title">${escapeHtml(task.title)}</div>
+                            ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-edit" onclick="openEditModal(${task.id})">Edit</button>
+                            <button class="btn btn-danger" onclick="deleteTask(${task.id})">Delete</button>
+                        </div>
+                    </div>
+                    <div class="task-meta">
+                        <span class="task-status status-${task.status.toLowerCase().replace('_', '-')}">
+                            ${formatStatus(task.status)}
+                        </span>
+                        <span>Created: ${formatDate(task.createdAt)}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = tasksHTML;
+        }
+
+        // Update statistics
+        function updateStatistics(tasks) {
+            const total = tasks.length;
+            const notStarted = tasks.filter(t => t.status === 'NOT_STARTED').length;
+            const inProgress = tasks.filter(t => t.status === 'IN_PROGRESS').length;
+            const completed = tasks.filter(t => t.status === 'COMPLETED').length;
+            const completionPercentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('notStartedCount').textContent = notStarted;
+            document.getElementById('inProgressCount').textContent = inProgress;
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('completionPercentage').textContent = `${completionPercentage}%`;
+        }
+
+        // Handle add task form submission
+        async function handleAddTask(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const taskData = {
+                title: formData.get('title').trim(),
+                description: formData.get('description').trim() || null,
+                status: formData.get('status')
+            };
+
+            if (!taskData.title) {
+                alert('Please enter a task title');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(taskData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to create task');
+                }
+
+                // Reset form and reload tasks
+                e.target.reset();
+                loadTasks();
+                
+            } catch (error) {
+                console.error('Error adding task:', error);
+                alert(`Failed to add task: ${error.message}`);
+            }
+        }
+
+        // Delete task
+        async function deleteTask(taskId) {
+            if (!confirm('Are you sure you want to delete this task?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/tasks/${taskId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete task');
+                }
+
+                loadTasks();
+                
+            } catch (error) {
+                console.error('Error deleting task:', error);
+                alert('Failed to delete task');
+            }
+        }
+
+        // Open edit modal
+        function openEditModal(taskId) {
+            const task = allTasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            document.getElementById('editTaskId').value = task.id;
+            document.getElementById('editTaskTitle').value = task.title;
+            document.getElementById('editTaskDescription').value = task.description || '';
+            document.getElementById('editTaskStatus').value = task.status;
+
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        // Close edit modal
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            document.getElementById('editTaskForm').reset();
+        }
+
+        // Handle edit task form submission
+        async function handleEditTask(e) {
+            e.preventDefault();
+            
+            const taskId = document.getElementById('editTaskId').value;
+            const formData = new FormData(e.target);
+            const taskData = {
+                title: formData.get('title').trim(),
+                description: formData.get('description').trim() || null,
+                status: formData.get('status')
+            };
+
+            if (!taskData.title) {
+                alert('Please enter a task title');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/tasks/${taskId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(taskData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to update task');
+                }
+
+                closeEditModal();
+                loadTasks();
+                
+            } catch (error) {
+                console.error('Error updating task:', error);
+                alert(`Failed to update task: ${error.message}`);
+            }
+        }
+
+        // Utility functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatStatus(status) {
+            const statusMap = {
+                'NOT_STARTED': 'Not Started',
+                'IN_PROGRESS': 'In Progress',
+                'COMPLETED': 'Completed'
+            };
+            return statusMap[status] || status;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+    </script>
+</body>
+</html>
