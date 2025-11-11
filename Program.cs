@@ -42,7 +42,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline
-// 配置静态文件服务，指向frontend文件夹
+// Configure static files service to serve from frontend folder
 app.UseStaticFiles(new Microsoft.AspNetCore.Builder.StaticFileOptions
 {
     FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
@@ -50,7 +50,7 @@ app.UseStaticFiles(new Microsoft.AspNetCore.Builder.StaticFileOptions
     RequestPath = ""
 });
 
-// CORS 必须在路由之前
+// CORS must be configured before routing
 app.UseCors("AllowFrontend");
 
 if (app.Environment.IsDevelopment())
@@ -77,7 +77,7 @@ app.MapGet("/health", () => Results.Ok(new {
 .WithName("HealthCheck")
 .WithSummary("Health check endpoint");
 
-// 根路径重定向到前端页面
+// Redirect root path to frontend homepage
 app.MapGet("/", () => Results.Redirect("/index.html"));
 
 Console.WriteLine("🚀 Task Management API is starting...");
